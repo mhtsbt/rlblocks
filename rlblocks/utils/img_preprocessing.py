@@ -1,7 +1,7 @@
 import cv2
 
 
-class Utils:
+class ImgPreprocessing:
 
     @staticmethod
     def greyscale(img):

@@ -6,7 +6,7 @@ import numpy as np
 
 class DQNNatureTrainer:
 
-    def __init__(self, model, target_model, lr_eps, gamma=0.99, lr=0.0001, device='cuda'):
+    def __init__(self, model, target_model, adam_eps, gamma=0.99, adam_lr=0.0001, device='cuda'):
 
         self.model = model
         self.target_model = target_model
@@ -14,7 +14,7 @@ class DQNNatureTrainer:
         self.device = device
         self.gamma = gamma
 
-        self.optimizer = Adam(self.model.parameters(), lr=lr, eps=lr_eps)
+        self.optimizer = Adam(self.model.parameters(), lr=adam_lr, eps=adam_eps)
 
     def train(self, start_states, result_states, actions, rewards, done):
 
