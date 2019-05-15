@@ -28,7 +28,7 @@ class DQNNatureTrainer:
         future_values = future_values.detach()
 
         # set future value to zero for final states
-        nonterminal = FloatTensor(np.invert(done))
+        nonterminal = FloatTensor(np.invert(done)).to(self.device)
 
         current_values = self.model(start_state)
         current_values = current_values.gather(1, actions)
