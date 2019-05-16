@@ -1,4 +1,4 @@
-from torch.optim import Adam
+from torch.optim import Adam, RMSprop
 from torch import FloatTensor, LongTensor
 from torch.nn.functional import smooth_l1_loss
 import numpy as np
@@ -6,15 +6,14 @@ import numpy as np
 
 class DQNNatureTrainer:
 
-    def __init__(self, model, target_model, adam_eps, gamma=0.99, adam_lr=0.0001, device='cuda'):
+    def __init__(self, model, target_model, optimizer, gamma=0.99, device='cuda'):
 
         self.model = model
         self.target_model = target_model
 
         self.device = device
         self.gamma = gamma
-
-        self.optimizer = Adam(self.model.parameters(), lr=adam_lr, eps=adam_eps)
+        self.optimizer = optimizer
 
     def train(self, start_states, result_states, actions, rewards, done):
 
