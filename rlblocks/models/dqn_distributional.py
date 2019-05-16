@@ -15,6 +15,7 @@ class DQNDistributional(nn.Module):
 
         self.actions = actions
         self.atoms = atoms
+        self.input_shape = input_shape
 
         self.conv1 = nn.Conv2d(input_shape[0], 32, kernel_size=8, stride=4)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=4, stride=2)
