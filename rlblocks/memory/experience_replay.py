@@ -5,7 +5,7 @@ from rlblocks.memory.memory_interface import MemoryBase
 
 class ExperienceReplayMemory(MemoryBase):
 
-    def __init__(self, capacity=int(1e6)):
+    def __init__(self, capacity=int(1e6), device="cpu"):
         self.capacity = capacity
         self.data = deque(maxlen=capacity)
 
