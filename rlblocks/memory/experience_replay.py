@@ -1,8 +1,9 @@
 from collections import deque
 from random import choices
+from rlblocks.memory.memory_interface import MemoryBase
 
 
-class ExperienceReplayMemory:
+class ExperienceReplayMemory(MemoryBase):
 
     def __init__(self, capacity=int(100e3)):
         self.capacity = capacity

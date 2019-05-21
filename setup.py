@@ -13,5 +13,5 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/mhtsbt/rlblocks",
     packages=["rlblocks.memory", "rlblocks.models", "rlblocks.policy", "rlblocks.trainers", "rlblocks.utils"],
-    install_requires=["gym", "torch>=1.1.0,<2.0.0", "opencv-python>=4.1.0.25,<5.0.0.0"]
+    install_requires=["gym", "torch>=1.1.0,<2.0.0", "opencv-python>=4.1.0.25,<5.0.0.0", "interface"]
 )

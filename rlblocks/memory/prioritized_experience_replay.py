@@ -3,12 +3,13 @@ import numpy as np
 import torch
 import os
 from rlblocks.utils.segment_tree import SegmentTree
+from rlblocks.memory.memory_interface import MemoryBase
 
 # TODO: remove this transition
 Transition = namedtuple('Transition', ('timestep', 'state', 'action', 'reward', 'nonterminal'))
 
 
-class PrioritizedExperienceReplayMemory:
+class PrioritizedExperienceReplayMemory(MemoryBase):
 
     def __init__(self, config: Config):
 
@@ -24,6 +25,11 @@ class PrioritizedExperienceReplayMemory:
         self.blank_trans = Transition(0, torch.zeros((self.config.frame_height, self.config.frame_width), dtype=torch.uint8), None, 0, False)
 
     # Adds state and action at time t, reward and terminal at time t + 1
+
+    def store(self, transition):
+        # TODO
+        return
+
     def append(self, state, action, reward, terminal, worker_id):
 
         # Only store last frame
@@ -99,12 +105,16 @@ class PrioritizedExperienceReplayMemory:
 
         return prob, idx, tree_idx, state, action, R, next_state, nonterminal
 
-    def sample(self, batch_size):
+    def sample(self, size):
 
-        p_total = self.transitions.total()  # Retrieve sum of all priorities (used to create a normalised probability distribution)
-        segment = p_total / batch_size  # Batch size number of segments, based on sum over all probabilities
+        # Retrieve sum of all priorities (used to create a normalised probability distribution)
+        p_total = self.transitions.total()
 
-        batch = [self._get_sample_from_segment(segment, i) for i in range(batch_size)]  # Get batch of valid samples
+        # Batch size number of segments, based on sum over all probabilities
+        segment = p_total / size
+
+        # Get batch of valid samples
+        batch = [self._get_sample_from_segment(segment, i) for i in range(size)]
         probs, idxs, tree_idxs, states, actions, returns, next_states, nonterminals = zip(*batch)
 
         states = torch.stack(states)
@@ -113,15 +123,15 @@ class PrioritizedExperienceReplayMemory:
         returns = torch.cat(returns).to(self.config.device)
         nonterminals = torch.stack(nonterminals).to(self.config.device)
 
-        probs = np.array(probs, dtype=np.float32) / p_total  # Calculate normalised probabilities
+        # Calculate normalised probabilities
+        probs = np.array(probs, dtype=np.float32) / p_total
         capacity = self.config.memory_capacity if self.transitions.full else self.transitions.index
-        weights = (capacity * probs) ** -self.config.priority_weight  # Compute importance-sampling weights w
-        weights = torch.tensor(weights / weights.max(), dtype=torch.float32, device=self.config.device)  # Normalise by max importance-sampling weight from batch
 
-        #for i in range(10):
-        #    test = states.numpy()[i]
-        #    plt.imshow(np.concatenate(test))
-        #    plt.show()
+        # Compute importance-sampling weights w
+        weights = (capacity * probs) ** -self.config.priority_weight
+
+        # Normalise by max importance-sampling weight from batch
+        weights = torch.tensor(weights / weights.max(), dtype=torch.float32, device=self.config.device)
 
         return tree_idxs, states, actions, returns, next_states, nonterminals, weights
 
