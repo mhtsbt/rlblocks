@@ -8,41 +8,43 @@ from rlblocks.memory.memory_interface import MemoryBase
 # TODO: remove this transition
 Transition = namedtuple('Transition', ('timestep', 'state', 'action', 'reward', 'nonterminal'))
 
+#Transition = namedtuple('Transition', ['start_state', 'result_state', 'action', 'reward', 'done', 'fs'])
+
 
 class PrioritizedExperienceReplayMemory(MemoryBase):
 
-    def __init__(self, config: Config):
+    def __init__(self, capacity=int(1e6)):
 
-        self.config = config
         self.priority_exponent = self.config.priority_exponent # TODO: this was removed in dopamine
 
-        # Internal episode timestep counter (for each worker)
-        self.t = np.zeros(shape=self.config.n_workers, dtype=np.int)
+        # Internal episode timestep counter
+        self.t = 0
 
         # Store transitions in a wrap-around cyclic buffer within a sum tree for querying priorities
         self.transitions = SegmentTree(self.config.memory_capacity)
 
         self.blank_trans = Transition(0, torch.zeros((self.config.frame_height, self.config.frame_width), dtype=torch.uint8), None, 0, False)
 
-    # Adds state and action at time t, reward and terminal at time t + 1
-
     def store(self, transition):
-        # TODO
-        return
-
-    def append(self, state, action, reward, terminal, worker_id):
-
         # Only store last frame
-        state_tensor = torch.ByteTensor(np.array(state[-1])).to(torch.device('cpu'))
+        transition.start_state = torch.ByteTensor(np.array(transition.start_state[-1])).to(torch.device('cpu'))
+
+        # we do not need the result state because we use indexes
+        transition.result_state = None
 
         # Store new transition with maximum priority
-        self.transitions.append(Transition(self.t[worker_id], state_tensor, action, reward, not terminal), self.transitions.max)
+        self.transitions.append(transition, self.transitions.max, self.t)
 
-        # Start new episodes with t = 0
-        self.t[worker_id] = 0 if terminal else self.t[worker_id] + 1
+        # update the frame-index
+        if transition.done:
+            self.t = 0
+        else:
+            self.t += 1
 
     # Returns a transition with blank states where appropriate
     def _get_transition(self, idx):
+
+        # TODO
 
         transition = np.array([None] * (self.config.frame_history + self.config.multi_step))
         transition[self.config.frame_history - 1] = self.transitions.get(idx)
@@ -73,6 +75,9 @@ class PrioritizedExperienceReplayMemory(MemoryBase):
 
     # Returns a valid sample from a segment
     def _get_sample_from_segment(self, segment, i):
+
+        # TODO
+
         valid = False
         while not valid:
             # Uniformly sample an element from within a segment
@@ -107,6 +112,8 @@ class PrioritizedExperienceReplayMemory(MemoryBase):
 
     def sample(self, size):
 
+        # TODO
+
         # Retrieve sum of all priorities (used to create a normalised probability distribution)
         p_total = self.transitions.total()
 
@@ -136,6 +143,9 @@ class PrioritizedExperienceReplayMemory(MemoryBase):
         return tree_idxs, states, actions, returns, next_states, nonterminals, weights
 
     def update_priorities(self, idxs, priorities):
+
+        # TODO
+
         priorities = np.power(priorities, self.config.priority_exponent)
         [self.transitions.update(idx, priority) for idx, priority in zip(idxs, priorities)]
 
