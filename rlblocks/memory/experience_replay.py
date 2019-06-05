@@ -18,8 +18,14 @@ class ExperienceReplayMemory(MemoryBase):
 
         return choices(self.data, k=size)
 
-    def save(self, filename="memory.npz"):
-        np.savez_compressed(filename, self.data)
+    def save(self, location):
+        # loction is the folder where the different files should be stored
+
+        batch = zip(*self.data)
+
+        for index in range(len(self.data[0])):
+            col_data = np.array(next(batch))
+            np.savez_compressed(f"{location}/mem_{index}", col_data)
 
     def load(self, filename):
         self.data = np.load(filename)
