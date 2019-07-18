@@ -23,7 +23,7 @@ class PrioritizedExperienceReplayMemory(MemoryBase):
         self.t = 0
 
         # Store transitions in a wrap-around cyclic buffer within a sum tree for querying priorities
-        self.transitions = SegmentTree(self.config.memory_capacity)
+        self.transitions = SegmentTree(self.capacity)
 
         self.blank_trans = Transition(0, torch.zeros((self.config.frame_height, self.config.frame_width), dtype=torch.uint8), None, 0, False)
 
