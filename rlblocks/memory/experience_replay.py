@@ -2,6 +2,7 @@ from collections import deque
 from random import choices
 from rlblocks.memory.memory_interface import MemoryBase
 import numpy as np
+from glob import glob
 
 class ExperienceReplayMemory(MemoryBase):
 
@@ -27,5 +28,24 @@ class ExperienceReplayMemory(MemoryBase):
             col_data = np.array(next(batch))
             np.savez_compressed(f"{location}/mem_{index}", col_data)
 
-    def load(self, filename):
-        self.data = np.load(filename)
+    def load(self, location):
+
+        files = glob(f"{location}/mem_*.npz")
+
+        loaded_data = []
+
+        for file in files:
+
+            file_content = np.load(file)
+            file_data = file_content['arr_0']
+            loaded_data.append(file_data)
+
+        n_columns = len(loaded_data)
+
+        # very inefficient way to load the data
+        for row in range(len(loaded_data[0])):
+            t = []
+            for col in range(n_columns):
+                t.append(loaded_data[col][row])
+
+            self.store(t[::-1])
