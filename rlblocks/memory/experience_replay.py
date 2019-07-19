@@ -30,7 +30,7 @@ class ExperienceReplayMemory(MemoryBase):
 
     def load(self, location):
 
-        files = glob(f"{location}/mem_*.npz")
+        files = sorted(glob(f"{location}/mem_*.npz"))
 
         loaded_data = []
 
@@ -48,4 +48,4 @@ class ExperienceReplayMemory(MemoryBase):
             for col in range(n_columns):
                 t.append(loaded_data[col][row])
 
-            self.store(t[::-1])
+            self.store(t)
