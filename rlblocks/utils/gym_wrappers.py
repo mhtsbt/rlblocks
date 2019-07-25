@@ -17,6 +17,25 @@ class ActionMapWrapper(gym.ActionWrapper):
     def action(self, action):
         return self.action_map[action]
 
+class FrameSkipWrapper(gym.Wrapper):
+
+    def __init__(self, env, fs):
+        self.fs = fs
+        super(FrameSkipWrapper, self).__init__(env)
+
+    def step(self, action):
+
+        step_reward = 0
+
+        for _ in range(self.fs):
+            state, reward, done, info = self.env.step(action=action)
+            step_reward += reward
+
+            if done:
+                break
+
+        return state, step_reward, done, info
+
 
 class FrameHistoryWrapper(gym.ObservationWrapper):
 
