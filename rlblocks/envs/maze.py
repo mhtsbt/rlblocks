@@ -1,9 +1,8 @@
 import gym
 from gym.spaces import Discrete
-import math
 import numpy as np
 import random
-from envs.envbase import BaseEnv
+from gridgym.envs.envbase import BaseEnv
 
 
 class MazeEnv(BaseEnv):
@@ -19,6 +18,7 @@ class MazeEnv(BaseEnv):
 
         self.grid_size = 39
         self.states_count = self.grid_size ** 2
+        self.observation_space = Discrete(self.states_count)
 
         self.grid = self._generate_complex_grid(
             width=self.grid_size, height=self.grid_size)
