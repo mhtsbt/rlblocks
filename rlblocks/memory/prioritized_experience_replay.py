@@ -13,11 +13,13 @@ Transition = namedtuple('Transition', ('timestep', 'state', 'action', 'reward', 
 
 class PrioritizedExperienceReplayMemory(MemoryBase):
 
-    def __init__(self, capacity=int(1e6), device="cuda"):
+    def __init__(self, capacity=int(1e6), device="cuda", frame_height=84, frame_width=84, priority_exponent=0.5):
 
         self.device = device
+        self.frame_height = frame_height
+        self.frame_width = frame_width
         self.capacity = capacity
-        self.priority_exponent = self.config.priority_exponent # TODO: this was removed in dopamine
+        self.priority_exponent = priority_exponent # TODO: this was removed in dopamine
 
         # Internal episode timestep counter
         self.t = 0
@@ -25,7 +27,7 @@ class PrioritizedExperienceReplayMemory(MemoryBase):
         # Store transitions in a wrap-around cyclic buffer within a sum tree for querying priorities
         self.transitions = SegmentTree(self.capacity)
 
-        self.blank_trans = Transition(0, torch.zeros((self.config.frame_height, self.config.frame_width), dtype=torch.uint8), None, 0, False)
+        self.blank_trans = Transition(0, torch.zeros((self.frame_height, self.frame_width), dtype=torch.uint8), None, 0, False)
 
     def store(self, transition):
         # Only store last frame
@@ -145,7 +147,7 @@ class PrioritizedExperienceReplayMemory(MemoryBase):
 
         # TODO
 
-        priorities = np.power(priorities, self.config.priority_exponent)
+        priorities = np.power(priorities, self.priority_exponent)
         [self.transitions.update(idx, priority) for idx, priority in zip(idxs, priorities)]
 
     def save(self, filename):
