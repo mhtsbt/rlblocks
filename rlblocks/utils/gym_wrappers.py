@@ -1,4 +1,4 @@
-from gym.spaces import Discrete
+from gym.spaces import Discrete, Box
 from copy import deepcopy
 from collections import deque
 from rlblocks.utils.img_preprocessing import ImgPreprocessing
@@ -56,10 +56,15 @@ class FrameHistoryWrapper(gym.ObservationWrapper):
 
 class ResizeGreyscaleWrapper(gym.ObservationWrapper):
 
-    def __init__(self, env, frame_w, frame_h):
+    # TODO: change observation_space
+
+    def __init__(self, env, frame_w=84, frame_h=84):
         super(ResizeGreyscaleWrapper, self).__init__(env)
         self.frame_w = frame_w
         self.frame_h = frame_h
+        
+        # change the observation-space to the new format
+        self.observation_space = Box(low=0, high=255, shape=(self.frame_h, self.frame_w, 1))
 
     def observation(self, observation):
         observation = ImgPreprocessing.greyscale(observation)
