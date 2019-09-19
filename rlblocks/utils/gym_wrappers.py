@@ -56,13 +56,11 @@ class FrameHistoryWrapper(gym.ObservationWrapper):
 
 class ResizeGreyscaleWrapper(gym.ObservationWrapper):
 
-    # TODO: change observation_space
-
     def __init__(self, env, frame_w=84, frame_h=84):
         super(ResizeGreyscaleWrapper, self).__init__(env)
         self.frame_w = frame_w
         self.frame_h = frame_h
-        
+
         # change the observation-space to the new format
         self.observation_space = Box(low=0, high=255, shape=(self.frame_h, self.frame_w, 1))
 

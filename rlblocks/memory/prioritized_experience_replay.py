@@ -76,6 +76,7 @@ class PrioritizedExperienceReplayMemory:
     def _get_sample_from_segment(self, segment, i):
         valid = False
         while not valid:
+
             # Uniformly sample an element from within a segment
             sample = np.random.uniform(i * segment, (i + 1) * segment)
 
@@ -107,6 +108,10 @@ class PrioritizedExperienceReplayMemory:
     def sample(self, batch_size):
 
         p_total = self.transitions.total()  # Retrieve sum of all priorities (used to create a normalised probability distribution)
+
+        if np.isnan(p_total):
+            p_total = 0
+
         segment = p_total / batch_size  # Batch size number of segments, based on sum over all probabilities
 
         batch = [self._get_sample_from_segment(segment, i) for i in range(batch_size)]  # Get batch of valid samples
